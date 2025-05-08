@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45fbca68d73e3974aaf83568e8b59929, type: 3}
+  m_Name: Gyoku_1
+  m_EditorClassIdentifier: 
+  <MovementData>k__BackingField:
+    <DefaultMoving>k__BackingField:
+    - <MovingListRow>k__BackingField: 010000000100000001000000
+    - <MovingListRow>k__BackingField: 010000000000000001000000
+    - <MovingListRow>k__BackingField: 010000000100000001000000
+    <ExtraMoving>k__BackingField:
+    - <MovingListRow>k__BackingField: 000000000000000000000000
+    - <MovingListRow>k__BackingField: 000000000000000000000000
+    - <MovingListRow>k__BackingField: 000000000000000000000000
+  <Status>k__BackingField:
+    <KomaID>k__BackingField: 7
+    <MaxLevel>k__BackingField: 1
+    <StatusTable>k__BackingField:
+    - <ExpToNextLevel>k__BackingField: 0
+      <HitPoints>k__BackingField: 1
+      <AttackPoints>k__BackingField: 1000
+      <Exp>k__BackingField: 0
+    <CanEvolution>k__BackingField: 0
+    <MaxStatus>k__BackingField:
+      <ExpToNextLevel>k__BackingField: 0
+      <HitPoints>k__BackingField: 0
+      <AttackPoints>k__BackingField: 0
+      <Exp>k__BackingField: 0
+    <ExHitPoint>k__BackingField: 0
+    <ExAttackPoint>k__BackingField: 0
+  <SkillData>k__BackingField:
+    <ActiveSkillData>k__BackingField:
+      <ActiveSkillWaitTurn>k__BackingField: 0
+      <ActiveSkillRecastTurn>k__BackingField: 0
+      <IsUseInUsual>k__BackingField: 0
+      <IsUseInCombat>k__BackingField: 0
+    <PassiveSkillData>k__BackingField:
+      <PassiveSkillStucks>k__BackingField: 0

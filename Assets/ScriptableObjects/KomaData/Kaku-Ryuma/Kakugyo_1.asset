@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45fbca68d73e3974aaf83568e8b59929, type: 3}
+  m_Name: Kakugyo_1
+  m_EditorClassIdentifier: 
+  <MovementData>k__BackingField:
+    <DefaultMoving>k__BackingField:
+    - <MovingListRow>k__BackingField: 020000000000000002000000
+    - <MovingListRow>k__BackingField: 000000000000000000000000
+    - <MovingListRow>k__BackingField: 020000000000000002000000
+    <ExtraMoving>k__BackingField:
+    - <MovingListRow>k__BackingField: 020000000100000002000000
+    - <MovingListRow>k__BackingField: 010000000000000001000000
+    - <MovingListRow>k__BackingField: 020000000100000002000000
+  <Status>k__BackingField:
+    <KomaID>k__BackingField: 5
+    <MaxLevel>k__BackingField: 5
+    <StatusTable>k__BackingField:
+    - <ExpToNextLevel>k__BackingField: 150
+      <HitPoints>k__BackingField: 200
+      <AttackPoints>k__BackingField: 150
+      <Exp>k__BackingField: 200
+    - <ExpToNextLevel>k__BackingField: 240
+      <HitPoints>k__BackingField: 260
+      <AttackPoints>k__BackingField: 210
+      <Exp>k__BackingField: 300
+    - <ExpToNextLevel>k__BackingField: 350
+      <HitPoints>k__BackingField: 340
+      <AttackPoints>k__BackingField: 270
+      <Exp>k__BackingField: 400
+    - <ExpToNextLevel>k__BackingField: 440
+      <HitPoints>k__BackingField: 420
+      <AttackPoints>k__BackingField: 330
+      <Exp>k__BackingField: 500
+    - <ExpToNextLevel>k__BackingField: 600
+      <HitPoints>k__BackingField: 520
+      <AttackPoints>k__BackingField: 390
+      <Exp>k__BackingField: 600
+    <CanEvolution>k__BackingField: 1
+    <MaxStatus>k__BackingField:
+      <ExpToNextLevel>k__BackingField: 0
+      <HitPoints>k__BackingField: 650
+      <AttackPoints>k__BackingField: 450
+      <Exp>k__BackingField: 700
+    <ExHitPoint>k__BackingField: 100
+    <ExAttackPoint>k__BackingField: 200
+  <SkillData>k__BackingField:
+    <ActiveSkillData>k__BackingField:
+      <ActiveSkillWaitTurn>k__BackingField: 9
+      <ActiveSkillRecastTurn>k__BackingField: 12
+      <IsUseInUsual>k__BackingField: 1
+      <IsUseInCombat>k__BackingField: 0
+    <PassiveSkillData>k__BackingField:
+      <PassiveSkillStucks>k__BackingField: 0
