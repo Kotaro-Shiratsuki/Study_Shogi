@@ -1,42 +1,37 @@
-﻿using JetBrains.Annotations;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [System.Serializable]
 public class GridData
 {
     /// <summary>
-    /// マス目のワールド座標
+    /// World position.
     /// </summary>
     [field: SerializeField]
     public Vector3 WorldPosition { get; private set; }
 
     /// <summary>
-    /// マス目の将棋盤的な数え方による位置
+    /// Position of counting on the Shogi Board.
     /// </summary>
     [field: SerializeField]
     public Vector2Int ShogiPosition { get; private set; }
 
     /// <summary>
-    /// 配列の要素としての番号
+    /// Array index.
     /// </summary>
     [field: SerializeField]
     public Vector2Int IndexNumber {  get; private set; }
 
     /// <summary>
-    /// マスの状態。空き、駒あり、合戦中のどれか
+    /// Grid state.
     /// </summary>
     [field: SerializeField]
     public GridState State { get; private set; }
 
     /// <summary>
-    /// マスの所属している陣地
+    /// The region to witch the grid belong.
     /// </summary>
     [field: SerializeField]
     public GridRegion Region { get; private set; }
-
-    [field: SerializeField]
-    public List<GameObject> Rulers { get; private set; } = new List<GameObject>();
 
     #region Setter Methods
     public void SetWorldPosition(Vector3 worldPosition)
@@ -49,12 +44,12 @@ public class GridData
         this.ShogiPosition = shogiPosition;
     }
 
-    public void SetElementNumber(Vector2Int element)
+    public void SetIndexNumber(Vector2Int element)
     {
         this.IndexNumber = element;
     }
 
-    public void SetState(GridState state)
+    public void UpdateState(GridState state)
     {
         this.State = state;
     }
@@ -62,12 +57,6 @@ public class GridData
     public void SetRegion(GridRegion region)
     {
         this.Region = region;
-    }
-
-    public void SetRulers(GameObject ruler)
-    {
-        Rulers.Clear();
-        Rulers.Add(ruler);
     }
     #endregion
 }
@@ -77,9 +66,14 @@ public enum GridState
 {
     None,
     Empty,
-    Ruled,
+    Friend,
+    Enemy,
     War,
     Movable,
+    MovableWithEv,
+    Attackable,
+    AttackableWithEv,
+    Blocked,
     Size,
 }
 

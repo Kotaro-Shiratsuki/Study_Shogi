@@ -3,10 +3,13 @@
 public class FieldGenerator : MonoBehaviour
 {
     [SerializeField]
-    private GameObject boardParent;
+    private GameObject boardObject;
 
     [SerializeField]
-    private GameObject shogiGridObj;
+    private GameObject sideObject;
+
+    [SerializeField]
+    private GameObject gridObject;
 
     [SerializeField]
     private GameObject friendParent;
@@ -18,24 +21,30 @@ public class FieldGenerator : MonoBehaviour
     private SerializedDictionary<ID, GameObject> KomaList;
 
     [SerializeField]
-    private float gridOffset;
+    private float boardYposOffset;
+
+    [SerializeField]
+    private Vector2 sideOffset;
+
+    [SerializeField]
+    private Vector2 gridOffset;
 
     [SerializeField]
     private float komaYposOffset;
 
     private readonly Vector2Int boardSize = new Vector2Int(StaticMembers.BoardColumn, StaticMembers.BoardRow);
 
-    // 駒の初期配置
+    // Initial layout of Koma.
     private KomaInitLayout layout;
 
     private void Start()
     {
         layout = new KomaInitLayout();
 
-        // 盤面の生成
         if(GenerateBoard())
         {
             Debug.Log("Sho-gi board is generated!");
+            Destroy(gameObject);
         }
         else
         {
@@ -44,33 +53,41 @@ public class FieldGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// 盤面生成処理
+    /// The process to generate Shogi Board.
     /// </summary>
     /// <returns></returns>
     private bool GenerateBoard()
     {
-        if(shogiGridObj == null)
+        if(boardObject == null || gridObject == null)
         {
             return false;
         }
 
-        for(int y = boardSize.y - 1; y >= 0; y--)
+
+        GameObject board = Instantiate(boardObject, new Vector3(0, boardYposOffset, 0), Quaternion.identity);
+        
+        GameObject friendSide = Instantiate(sideObject, new Vector3(sideOffset.x, boardYposOffset, sideOffset.y), Quaternion.identity);
+        GameObject enemySide = Instantiate(sideObject, new Vector3(-sideOffset.x, boardYposOffset, -sideOffset.y), Quaternion.AngleAxis(180.0f, Vector3.up));
+        SetSideBoard(friendSide, enemySide);
+
+
+        for (int y = boardSize.y - 1; y >= 0; y--)
         {
             for(int x = 0; x < boardSize.x; x++)
             {
-                // 盤面の真ん中が(0, 0, 0)になるよう、座標を調整
-                float posX = (x - (boardSize.x / 2)) * gridOffset;
-                float posZ = (y - (boardSize.y / 2)) * gridOffset;
-                Vector3 spawnPosition = new Vector3(posX, 0f, posZ);
+                // Adjust coordinates so that the center of the board is (0, 0, 0)
+                float posX = (x - (boardSize.x / 2)) * gridOffset.x;
+                float posZ = (y - (boardSize.y / 2)) * gridOffset.x;
+                Vector3 spawnPosition = new Vector3(posX, gridOffset.y, posZ);
 
-                // 配列の要素としての番号
+                // Array index
                 Vector2Int index = new Vector2Int((boardSize.y - 1) - y, x);
 
-                // 調整した座標に対してマス目を実体化させる
-                GameObject go = Instantiate(shogiGridObj, spawnPosition, Quaternion.identity);
+                // Instantiate the grid for the adjusted coordinates.
+                GameObject go = Instantiate(gridObject, spawnPosition, Quaternion.identity);
 
-                // 各種データの初期化               
-                SetParent(go);
+                // Data init.
+                SetParent(board, go);
                 SetGridDictionary(go, index);
                 SetInitialData(spawnPosition, index);
             }
@@ -81,33 +98,41 @@ public class FieldGenerator : MonoBehaviour
 
 
     #region Initialize Methods
-    /// <summary>
-    /// 生成したマス目をボードの子オブジェクトにセット
-    /// </summary>
-    private void SetParent(GameObject obj)
+    private void SetSideBoard(GameObject friend, GameObject enemy)
     {
-        obj.transform.parent = boardParent.transform;
+        GameManager.Instance.SetSideBoard(friend.GetComponent<SideBoard>(), enemy.GetComponent<SideBoard>());
+        GameManager.Instance.FriendSideBoard.BeFriend();
+        GameManager.Instance.FriendSideBoard.Initialize();
+        GameManager.Instance.EnemySideBoard.Initialize();
+    }
+    
+    /// <summary>
+    /// Set the instantiated grid to parent object as a child.
+    /// </summary>
+    private void SetParent(GameObject parent, GameObject children)
+    {
+        children.transform.parent = parent.transform;
     }
 
     /// <summary>
-    /// 生成したマス目オブジェクトを配列に格納
+    /// Set the instantiated grid to array.
     /// </summary>
     private void SetGridDictionary(GameObject obj, Vector2Int index)
     {
-        GameManager.Instance.GridDictionary.Add(GameManager.Instance.ParseTwoDimentionalIndexToShogiPos(index), index, obj.GetComponent<ShogiGrid>());
+        GameManager.Instance.GridDictionary.Add(GameManager.Instance.ParseIndexToPos(index), index, obj.GetComponent<ShogiGrid>());
     }
 
     /// <summary>
-    /// マス目情報の初期化処理
+    /// Set grid initial data.
     /// </summary>
     private void SetInitialData(Vector3 position, Vector2Int index)
     {
         ShogiGrid grid;
-        GridData data;
+        string key = GameManager.Instance.ParseIndexToPos(index);
 
-        if (GameManager.Instance.GridDictionary.TryGetValueFirstKey(GameManager.Instance.ParseTwoDimentionalIndexToShogiPos(index), out grid))
+        if (GameManager.Instance.GridDictionary.ContainsKey(key))
         {
-            data = grid.GridData;
+            grid = GameManager.Instance.GridDictionary.GetValue(key);
         }
         else
         {
@@ -115,53 +140,53 @@ public class FieldGenerator : MonoBehaviour
             return;
         }
 
-        SetInitialPosition(data, position, index);
-        SetInitialRegion(data, index);
-        GenerateKoma(position, index, data);
+        SetInitialPosition(grid, position, index);
+        SetInitialRegion(grid, index);
+        GenerateKoma(position, index, grid);
     }
 
     /// <summary>
-    /// マス目の座標をセット
+    /// Set grid positions.
     /// </summary>
-    private void SetInitialPosition(GridData data, Vector3 position, Vector2Int index)
+    private void SetInitialPosition(ShogiGrid grid, Vector3 position, Vector2Int index)
     {
-        data.SetWorldPosition(position);
-        data.SetShogiPosition(GameManager.Instance.ParseTwoDimentionalIndexToShogiPos(index));
-        data.SetElementNumber(index);
+        grid.SetWorldPosition(position);
+        grid.SetShogiPosition(GameManager.Instance.GetPosAsInt(index));
+        grid.SetIndexNumber(index);
     }
 
     /// <summary>
-    /// 駒生成処理
+    /// The process to generate Koma.
     /// </summary>
-    private void GenerateKoma(Vector3 position, Vector2Int index, GridData data)
+    private void GenerateKoma(Vector3 position, Vector2Int index, ShogiGrid grid)
     {
-        Vector2Int shogiPos = GameManager.Instance.ParseTwoDimentionalIndexToShogiPos(index);
+        Vector2Int shogiPos = GameManager.Instance.GetPosAsInt(index);
         GameObject koma;
 
         if(KomaList.TryGetValue(layout.GetID(index), out koma))
         {
             Vector3 spawnPosition = new Vector3(position.x, position.y + komaYposOffset, position.z);
 
-            if (data.Region == GridRegion.Friend)
+            if (grid.GetGridRegion() == GridRegion.Friend)
             {
                 koma = Instantiate(koma, spawnPosition, Quaternion.identity);
                 koma.transform.parent = friendParent.transform;
                 SetKomaInitialData(koma, spawnPosition, index, shogiPos, true);
+                grid.ChangeState(GridState.Friend);
             }
-            else if(data.Region == GridRegion.Enemy)
+            else if(grid.GetGridRegion() == GridRegion.Enemy)
             {
                 koma = Instantiate(koma, spawnPosition, Quaternion.AngleAxis(180.0f, Vector3.up));
                 koma.transform.parent = enemyParent.transform;
                 SetKomaInitialData(koma, spawnPosition, index, shogiPos, false);
+                grid.ChangeState(GridState.Enemy);
             }
 
-            koma.name = layout.GetID(shogiPos).ToString();
-
-            data.SetState(GridState.Ruled);
+            koma.name = layout.GetID(index).ToString();
         }
         else
         {
-            data.SetState(GridState.Empty);
+            grid.ChangeState(GridState.Empty);
         }
     }
 
@@ -175,27 +200,27 @@ public class FieldGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// マスの所属をセット
+    /// Set the region to which the grid belongs.
     /// </summary>
-    private void SetInitialRegion(GridData data, Vector2Int index)
+    private void SetInitialRegion(ShogiGrid grid, Vector2Int index)
     {
-        // 0-2段目は自陣、6-8段目は敵陣とし、真ん中を中立陣とする
-        switch(index.x)
+        // The 0-2 rows are the enemy region, the 6-8 rows are the own region, and the middle is the neutral region.
+        switch (index.x)
         {
             case 0:
             case 1:
             case 2:
-                data.SetRegion(GridRegion.Enemy);
+                grid.SetRegion(GridRegion.Enemy);
                 break;
 
             case 6:
             case 7:
             case 8:
-                data.SetRegion(GridRegion.Friend);
+                grid.SetRegion(GridRegion.Friend);
                 break;
 
             default:
-                data.SetRegion(GridRegion.Neutral);
+                grid.SetRegion(GridRegion.Neutral);
                 break;
         }
     }

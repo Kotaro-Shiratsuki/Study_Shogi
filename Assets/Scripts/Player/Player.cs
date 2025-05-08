@@ -1,45 +1,54 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using static GameManager;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
-using System;
 
+/// <summary>
+/// Class for receiving player input and issuing commands to shogi's koma.
+/// </summary>
 public class Player : MonoBehaviour
 {
+    public enum Side
+    {
+        None,
+        Friend,
+        Enemy,
+        Size
+    }
+
+    [field: SerializeField]
+    public Side CurrentSide {  get; private set; }
+
     [field: Header("Input")]
     public PlayerInputActions InputActions { get; private set; }
     public PlayerInputActions.PlayerActions Actions { get; private set; }
-
 
     [field: Header("Layers")]
     [field: SerializeField]
     public LayerMask GridLayer { get; private set; }
 
     [field: SerializeField]
-    public LayerMask KomaLayer { get; private set; }
+    public LayerMask AnchorLayer { get; private set; }
+
 
     [field: SerializeField]
-    public LayerMask UiLayer { get; private set; }
+    public float DistanceOfRay { get; private set; } = 50.0f;
 
-    // public event Action OnClickEvent;
-
-    #region Private Member
-    private Vector2Int clickedPosition;
-    #endregion
-
+    public GameManager Manager {  get; private set; }
+    private CanvasController canvas;
+    private PlayerOnClickMovements moves;
 
     #region Mono Methods
     private void Awake()
     {
-        // InputSystemの初期化
+        // Initialize Input System
         InputActions = new PlayerInputActions();
         Actions = InputActions.Player;
     }
 
     private void Start()
     {
-        Initialize();
+        Manager = GameManager.Instance;
+        canvas = Manager.Canvas;
+        moves = new PlayerOnClickMovements(this);
     }
 
     private void OnEnable()
@@ -60,124 +69,103 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Private Methods
-    private void Initialize()
-    {
-        clickedPosition = new Vector2Int(-1, -1);
-    }
-
+    /// <summary>
+    /// Register input call backs.
+    /// </summary>
     private void AddInputActionCallBacks()
     {
         Actions.Fire.started += OnMouseLeftButtonClicked;
     }
 
+    /// <summary>
+    /// Remove registered call backs.
+    /// </summary>
     private void RemoveInputActionCallBack()
     {
         Actions.Fire.started -= OnMouseLeftButtonClicked;
     }
 
+    /// <summary>
+    /// The event when player click a mouse left button.
+    /// </summary>
+    /// <param name="context"></param>
     private void OnMouseLeftButtonClicked(InputAction.CallbackContext context)
     {
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(mousePos);
-        RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, GridLayer))
-        {
-            var grid = hit.collider.gameObject.GetComponent<ShogiGrid>();
-            UpdateClickedPosition(grid.GetShogiPosition());
-
-#if UNITY_EDITOR
-            // デバッグ用
-            Debug.Log("clicked position : " + clickedPosition);
-            Debug.Log("Grid data Region : " + grid.GridData.Region + ", State : " + grid.GridData.State);
-            if (GameManager.Instance.KomaDictionary.TryGetValueFirstKey(clickedPosition, out var koma))
-            {
-                Debug.Log("Koma data ID : " + koma.Data.Status.KomaID + ", HP : " + koma.GetCurrentStatus().CurrentHitPoint + ", AP : " + koma.GetCurrentStatus().CurrentAttackPoint);
-            }
-#endif
-        }
-    }
-
-    private void UpdateClickedPosition(Vector2Int position)
-    {
-        if (position == clickedPosition)
-        {
-            return;
-        }
-
-        if(CheckMovableGrid(position))
-        {
-            Move(position);
-            clickedPosition = position;
-        }
-        else if(CheckRuledGrid(position))
-        {
-            // 移動可能マスの更新
-            GameManager.Instance.ResetMovableGrid();
-            GameManager.Instance.UpdateMovableGrid(position);
-
-            // とりあえず選択状態を外す
-            OutKomaClicked();
-            clickedPosition = position;
-            OnKomaClicked();
-        }
-        else
-        {
-            // 移動可能マスの更新
-            GameManager.Instance.ResetMovableGrid();
-
-            // とりあえず選択状態を外す
-            OutKomaClicked();
-            clickedPosition = position;
-            OnKomaClicked();
-        }
-
-           // クリックイベントを発火する
-           //OnClickEvent.Invoke();
-    }
-
-    private bool CheckMovableGrid(Vector2Int position)
-    {
-        return GameManager.Instance.GridDictionary.GetValueByFirstKey(position).GridData.State == GridState.Movable;
+        moves.CastRayOnClicked(mousePos, ray);
     }
 
     /// <summary>
-    /// マス目の上に駒が乗っているならTrue、空きマスならFalseを返す
+    /// Cancel button behavior.
     /// </summary>
-    private bool CheckRuledGrid(Vector2Int position)
+    private void OnCancelButtonClicked()
     {
-        return GameManager.Instance.KomaDictionary.ContainsFirstKey(position);
+        moves.OnCancelButtonClicked();
+    }
+    
+    /// <summary>
+    /// Action button behavior.
+    /// </summary>
+    private void OnActionButtonClicked()
+    {
+        moves.OnActionButtonClicked();
+        canvas.DisableActionButton();
+    }
+    #endregion
+
+    #region Internal Methods
+
+    /// <summary>
+    /// Show action buttons and register listeners.
+    /// </summary>
+    internal void ShowActionButtons()
+    {
+        canvas.ShowButtons(moves.ShowActionButtons());
+
+        canvas.ActionButtonsPanel.ActionButton.onClick.AddListener(OnActionButtonClicked);
+        canvas.ActionButtonsPanel.CancelButton.onClick.AddListener(OnCancelButtonClicked);
     }
 
-    private void Move(Vector2Int target)
+    internal void SwitchActionButtons(GridState state)
     {
-        Debug.Log("Move");
-
-        if(GameManager.Instance.KomaDictionary.TryGetValueFirstKey(clickedPosition, out var koma))
-        {
-            koma.UpdateTargetPosition(GameManager.Instance.GridDictionary.GetValueByFirstKey(target).GridData.WorldPosition, target);
-            koma.Move();
-        }
+        canvas.SwitchActionButton(state);
     }
 
-    private void OnKomaClicked()
+    internal void HideUiOnWaitCanceling()
     {
-        Koma clicked;
-
-        if (GameManager.Instance.KomaDictionary.TryGetValueFirstKey(clickedPosition, out clicked))
-        {
-            clicked.OnClicked();
-        }
+        Manager.CancelWaiting();
     }
 
-    private void OutKomaClicked()
+    internal void WaitOnSideBoard()
     {
-        Koma clicked;
+       moves.WaitOnSideBoard();
+    }
 
-        if (GameManager.Instance.KomaDictionary.TryGetValueFirstKey(clickedPosition, out clicked))
-        {
-            clicked.RemoveSelected();
-        }
+    /// <summary>
+    /// Get is evolution toggles's value.
+    /// </summary>
+    /// <returns></returns>
+    internal bool IsEvolution()
+    {
+        return canvas.ActionButtonsPanel.IsEvolution.isOn;
+    }
+
+    /// <summary>
+    /// Remove koma's clicked state.
+    /// </summary>
+    internal void ResetClickedKoma()
+    {
+        moves.ResetClickedKoma();
+    }
+
+    /// <summary>
+    /// Remove anchor's selected state.
+    /// </summary>
+    internal void ResetSelectedAnchor()
+    {
+        moves.ResetSelectedAnchor();
     }
     #endregion
 }

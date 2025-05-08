@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
-
+/// <summary>
+/// A custom Dictionary class that allows two Keys to be set for one Value.
+/// </summary>
+/// <typeparam name="TKey1"></typeparam>
+/// <typeparam name="TKey2"></typeparam>
+/// <typeparam name="TValue"></typeparam>
 [System.Serializable]
 public class DualKeyDictionary<TKey1, TKey2, TValue>
 {
@@ -24,6 +28,13 @@ public class DualKeyDictionary<TKey1, TKey2, TValue>
         _dictionary.Remove(ke1);
     }
 
+    public void Remove(TKey2 key2)
+    {
+        _key2Map.Remove(_key1Map[key2]);
+        _dictionary.Remove(_key1Map[key2]);
+        _key1Map.Remove(key2);
+    }
+
     public bool TryAdd(TKey1 key1, TKey2 key2, TValue value)
     {
         if(!_dictionary.ContainsKey(key1) && !_key1Map.ContainsKey(key2) && !_key2Map.ContainsKey(key1))
@@ -38,7 +49,7 @@ public class DualKeyDictionary<TKey1, TKey2, TValue>
         return false;
     }
 
-    public List<TValue> GetAllValue()
+    public List<TValue> GetAllValues()
     {
         List<TValue> list = new List<TValue>();
 

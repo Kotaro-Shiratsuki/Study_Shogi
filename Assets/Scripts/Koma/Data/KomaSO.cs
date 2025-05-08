@@ -6,4 +6,5 @@ public class KomaSO : ScriptableObject
     [field: SerializeField] public KomaMovementData MovementData {  get; private set; }
     [field: SerializeField] public KomaStatusData Status { get; private set; }
     [field: SerializeField] public KomaSkillsData SkillData { get; private set; }
+    [field: SerializeField] public KomaSettingsData SettingsData { get; private set; }
 }

@@ -1,11 +1,9 @@
-﻿using UnityEngine;
-
-public abstract class StateMachine
+﻿public abstract class StateMachine
 {
     protected IState currentState;
 
     /// <summary>
-    /// State切替処理。
+    /// State switching method
     /// </summary>
     /// <param name="state"></param>
     public void ChangeState(IState state)
@@ -16,7 +14,7 @@ public abstract class StateMachine
     }
 
     /// <summary>
-    /// 毎フレームUpdateより先に実行される処理
+    /// Method to be performed befor NormalUpdate every frame.
     /// </summary>
     public void HandleInput()
     {
@@ -24,7 +22,7 @@ public abstract class StateMachine
     }
 
     /// <summary>
-    /// 毎フレーム実行される処理
+    /// Method to be performed every frame.
     /// </summary>
     public void NormalUpdate()
     {
@@ -32,7 +30,7 @@ public abstract class StateMachine
     }
 
     /// <summary>
-    /// Time.FixedDeltaTime 秒に1回実行される処理。物理演算は必ずこの中で行うこと。
+    /// Method to be performed every Time.FixedDeltaTime.
     /// </summary>
     public void PhysicsUpdate()
     {
@@ -40,7 +38,7 @@ public abstract class StateMachine
     }
 
     /// <summary>
-    /// アニメーション再生時に発火するイベント。アニメーターで設定する。
+    /// Event at start of animation.
     /// </summary>
     public void OnAnimationEnterEvent()
     {
@@ -48,7 +46,7 @@ public abstract class StateMachine
     }
 
     /// <summary>
-    /// アニメーション停止時に発火するイベント。アニメーターで設定する。
+    /// Event at end of animation.
     /// </summary>
     public void OnAnimationExitEvent()
     {
@@ -56,7 +54,7 @@ public abstract class StateMachine
     }
 
     /// <summary>
-    /// アニメーション遷移時に発火するイベント。アニメーターで設定する。
+    /// Event in transition of animation.
     /// </summary>
     public void OnAnimationTransitionEvent()
     {

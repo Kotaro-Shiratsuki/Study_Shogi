@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// シングルトンパターンクラス
+/// Singleton pattern class inheriting from MonoBehaviour.
 /// </summary>
 public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance;
 
     /// <summary>
-    /// シングルトンなクラスを取得。
-    /// もし見つからなければ新たに生成する。
+    /// Get singleton class.
+    /// If not found, generate a new one.
     /// </summary>
     public static T Instance
     {
@@ -17,17 +17,17 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             if(instance == null)
             {
-                // シーンからオブジェクトを検索
+                // Searching for objects in a scene.
                 instance = FindObjectOfType<T>();
 
-                // シーン上に存在しなければ、新たにGemeObjectを作成
-                if(instance == null)
+                // If it does not exist on the scene, create a new GemeObject.
+                if (instance == null)
                 {
                     GameObject singletonObject = new GameObject();
                     instance = singletonObject.AddComponent<T>();
                     singletonObject.name = typeof(T).Name.ToString() + "Obj";
 
-                    // シーン遷移で消えないようにする
+                    // Ensure that they do not destroy with scene transitions.
                     DontDestroyOnLoad(singletonObject);
                 }
             }
@@ -37,13 +37,10 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     }
 
     /// <summary>
-    /// 初期化処理
-    /// 既にインスタンスが存在する場合、重複を避けるため自らを破壊する
+    /// If an instance already exists, it destroys itself to avoid duplication.
     /// </summary>
     protected virtual void Awake()
     {
-        // インスタンスが未設定なら、自身を登録する
-        // 既に別のインスタンスが登録済みなら、自身を破壊する
         if(instance == null)
         {
             instance = this as T;

@@ -45,3 +45,13 @@ MonoBehaviour:
       <IsUseInCombat>k__BackingField: 0
     <PassiveSkillData>k__BackingField:
       <PassiveSkillStucks>k__BackingField: 0
+  <SettingsData>k__BackingField:
+    <MoveData>k__BackingField:
+      <MoveSpeed>k__BackingField: 3
+      <JumpHeight>k__BackingField: 1.5
+    <AttackData>k__BackingField:
+      <MoveSpeed>k__BackingField: 3
+      <JumpHeight>k__BackingField: 1.5
+    <CupturedData>k__BackingField:
+      <MoveSpeed>k__BackingField: 0
+      <JumpHeight>k__BackingField: 0

@@ -2,8 +2,8 @@
 using UnityEngine;
 
 /// <summary>
-/// komaMovementDataを盤面上の移動に置き換えるためのパーサークラス
-/// 移動範囲を 1 とした 9*9 の配列を返す
+/// Parser class for replacing komaMovementData with movement on the board.
+/// Returns 9*9 array with movement range as 1.
 /// </summary>
 public class MovementDataParser
 {
@@ -18,25 +18,25 @@ public class MovementDataParser
     int[,] movementAreas = new int[StaticMembers.BoardColumn, StaticMembers.BoardRow];
 
     /// <summary>
-    /// 移動先候補マスを9*9配列として返す処理
+    /// Process to return candidate grid as a 9*9 array.
     /// </summary>
-    public int[,] GetMovementArea(List<MovesListRow> moves, Vector2Int pos, bool isReverse = false)
+    public int[,] GetMovementArea(List<MovesListRow> moves, string key, bool isReverse = false)
     {
-        // 毎回0クリア
+        // 0 clear.
         System.Array.Clear(movementAreas, 0, movementAreas.Length);
         int[,] moveDirection = new int[directionColumn, directionRow];
 
-        // MovementDataで設定したMoveTypeのリストをintに変換
+        // Convert the list of MoveType set in MovementData to int.
         moveDirection = ParseMovetypeToDirection(moves);
 
-        // 変換されたMoveType毎に、自身を中心として移動範囲配列を作成
-        ParseMoveDirectionToMovableAreas(pos, moveDirection, isReverse);
+        // Create a move range array centered on itself for each converted MoveType
+        ParseMoveDirectionToMovableAreas(key, moveDirection, isReverse);
 
         return movementAreas;
     }
 
     /// <summary>
-    /// MoveTypeをint配列として変換する処理
+    /// Process to convert the MoveType to int.
     /// </summary>
     private int[,] ParseMovetypeToDirection(List<MovesListRow> moves)
     {
@@ -75,11 +75,11 @@ public class MovementDataParser
     }
 
     /// <summary>
-    /// 変換されたMoveDirectionをもとに、自身を中心として移動範囲を代入する処理
+    /// Assigns a move range centered on itself based on the converted MoveDirection.
     /// </summary>
-    private void ParseMoveDirectionToMovableAreas(Vector2Int pos, int[,] direction, bool isReverse)
+    private void ParseMoveDirectionToMovableAreas(string key, int[,] direction, bool isReverse)
     {
-        Vector2Int center = GameManager.Instance.ParseShogiPosToTwoDimentionalIndex(pos);
+        Vector2Int center = GameManager.Instance.ParsePosToIndex(key);
 
         for(int i = 0; i < directionColumn; i++)
         {
@@ -106,7 +106,7 @@ public class MovementDataParser
     }
 
     /// <summary>
-    /// MoveDirection == walk の時の代入処理
+    /// MoveDirection == walk
     /// </summary>
     private void SetWalkAreas(Vector2Int center, Vector2Int direction, bool isReverse)
     {
@@ -126,7 +126,7 @@ public class MovementDataParser
     }
 
     /// <summary>
-    /// MoveDirection == fly の時の代入処理
+    /// MoveDirection == fly
     /// </summary>
     private void SetFlyAreas(Vector2Int center, Vector2Int direction, bool isReverse)
     {
@@ -154,7 +154,7 @@ public class MovementDataParser
     }
 
     /// <summary>
-    /// MoveDirection == jump の時の代入処理
+    /// MoveDirection == jump
     /// </summary>
     private void SetJumpAreas(Vector2Int center, Vector2Int direction, bool isReverse)
     {
@@ -174,8 +174,8 @@ public class MovementDataParser
     }
 
     /// <summary>
-    /// 変換された方向を、直接要素インデックスと足し引きできる値に再変換する処理
-    /// WalkとFly用。
+    /// Process to reconvert the converted direction to a value that can be directly added to or subtracted from the index.
+    /// For walk and fly.
     /// </summary>
     private Vector2Int ConvertWalkAndFlyDirection(int directionX, int directionY)
     {
@@ -223,8 +223,8 @@ public class MovementDataParser
     }
 
     /// <summary>
-    /// 変換された方向を、直接要素インデックスと足し引きできる値に再変換する処理
-    /// Jump用特殊処理。Jumpの挙動を変えたいときは、この処理に変更を加える。
+    /// Process to reconvert the converted direction to a value that can be directly added to or subtracted from the index.
+    /// For jump.
     /// </summary>
     private Vector2Int ConvertJumpDirection(int directionX, int directionY)
     {

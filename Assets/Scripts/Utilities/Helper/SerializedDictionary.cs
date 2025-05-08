@@ -2,7 +2,7 @@
 using UnityEngine;
 
 /// <summary>
-/// インスペクターに表示可能（シリアライズ可能な）Dictionaryクラス
+/// Dictionary class that can be displayed (serializable) in the inspector.
 /// </summary>
 [System.Serializable]
 public class SerializedDictionary<K, V> : Dictionary<K, V>, ISerializationCallbackReceiver

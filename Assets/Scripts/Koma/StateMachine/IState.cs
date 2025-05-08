@@ -1,44 +1,42 @@
-﻿using UnityEngine;
-
-public interface IState
+﻿public interface IState
 {
     /// <summary>
-    /// Stateに入ってきて最初に実行される処理
+    /// The first process executed when entering the state.
     /// </summary>
     public void OnEnter();
 
     /// <summary>
-    /// Stateを抜けるとき最後に実行される処理
+    /// The final process executed when exiting the state.
     /// </summary>
     public void OnExit();
 
     /// <summary>
-    /// 毎フレームUpdateより先に実行される処理
+    /// Method to be performed befor NormalUpdate every frame.
     /// </summary>
     public void HandleInput();
 
     /// <summary>
-    /// 毎フレーム実行される処理
+    /// Method to be performed every frame.
     /// </summary>
     public void NormalUpdate();
 
     /// <summary>
-    /// Time.FixedDeltaTime 秒に1回実行される処理。物理演算は必ずこの中で行うこと。
+    /// Method to be performed every Time.FixedDeltaTime.
     /// </summary>
     public void PhysicsUpdate();
 
     /// <summary>
-    /// アニメーション再生時に発火するイベント。アニメーターで設定する。
+    /// Event at start of animation.
     /// </summary>
     public void OnAnimationEnterEvent();
 
     /// <summary>
-    /// アニメーション停止時に発火するイベント。アニメーターで設定する。
+    /// Event at end of animation.
     /// </summary>
     public void OnAnimationExitEvent();
 
     /// <summary>
-    /// アニメーション遷移時に発火するイベント。アニメーターで設定する。
+    /// Event in transition of animation.
     /// </summary>
     public void OnAnimationTransitionEvent();
 }
